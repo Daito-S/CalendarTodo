@@ -8,19 +8,22 @@ export const initTodos: Todo[] = [
     isDone: false,
     priority: 1,
     deadline: new Date(), // 日付はユーザーが初めて開いた日
+    icon: "house",
   },
   {
     id: uuid(),
     name: "明日のタスクも設定してみる",
-    isDone: true,
-    priority: 3,
-    deadline: null, // このTodoには期限を設定しない
+    isDone: false,
+    priority: 2,
+    deadline: null,
+    icon: "book",
   },
   {
     id: uuid(),
     name: "３つのチュートリアルタスクを削除する",
     isDone: false,
-    priority: 1,
-    deadline: new Date(2026, 10, 11),
+    priority: 3,
+    deadline: null, // このTodoには期限を設定しない
+    icon: "dumbbell",
   },
 ];
