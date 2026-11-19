@@ -1,8 +1,9 @@
 import type { Todo } from "./types";
 import dayjs from "dayjs";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClock, faPersonDigging } from "@fortawesome/free-solid-svg-icons";
+import { faClock } from "@fortawesome/free-solid-svg-icons";
 import { twMerge } from "tailwind-merge";
+import { todoIconOptions } from "./todoIcons";
 
 type Props = {
   todo: Todo;
@@ -10,7 +11,7 @@ type Props = {
   remove: (id: string) => void;
 };
 
-const num2star = (n: number): string => "★".repeat(4 - n);
+const num2star = (n: number): string => "★".repeat(n);
 
 const formattedDate = (date: Date) => {
   if (date.getHours() === 0 && date.getMinutes() === 0) {
@@ -38,8 +39,9 @@ const TodoItem = (props: Props) => {
             className="mr-3 shrink-0 cursor-pointer"
           />
           <FontAwesomeIcon
-            icon={faPersonDigging}
+            icon={todoIconOptions[todo.icon].icon}
             className="mr-2 shrink-0 text-slate-500"
+            aria-hidden="true" // 装飾なので読み上げさせない
           />
           <span className="min-w-0 text-lg font-medium wrap-anywhere text-slate-700">
             {todo.name}

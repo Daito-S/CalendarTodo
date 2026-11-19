@@ -1,9 +1,15 @@
 import { useState, useEffect } from "react";
 import type { ChangeEvent } from "react";
-import type { Todo } from "./types";
+import type { Todo, TodoIconName } from "./types";
 import { initTodos } from "./initTodos";
+import {
+  defaultTodoIcon,
+  isTodoIconName,
+  todoIconOptions,
+} from "./todoIcons";
 import WelcomeMessage from "./WelcomeMessage";
 import TodoList from "./TodoList";
+import CalendarView from "./Calendar";
 import { v4 as uuid } from "uuid";
 import { twMerge } from "tailwind-merge";
 import dayjs from "dayjs";
@@ -18,6 +24,7 @@ type StoredTodo = {
   isDone: boolean;
   priority: number;
   deadline: string | null;
+  icon: TodoIconName;
 };
 
 const loadTodos = (): Todo[] => {
@@ -27,10 +34,16 @@ const loadTodos = (): Todo[] => {
   }
 
   const storedTodos: StoredTodo[] = JSON.parse(todoJsonStr);
-  return storedTodos.map((todo) => ({
-    ...todo,
-    deadline: todo.deadline === null ? null : new Date(todo.deadline),
-  }));
+  return storedTodos.map((todo) => {
+    const icon = todo.icon !== null && todo.icon !== undefined ? todo.icon : "";
+    return {
+      ...todo,
+      // 期限をnullかDateに変換
+      deadline: todo.deadline === null ? null : new Date(todo.deadline),
+      // アイコンが不正な値の場合はデフォルトのアイコンに置き換える
+      icon: isTodoIconName(icon) ? icon : defaultTodoIcon,
+    };
+  });
 };
 
 const getTodoNameError = (name: string): string => {
@@ -46,10 +59,17 @@ const App = () => {
   const [newTodoName, setNewTodoName] = useState("");
   const [newTodoPriority, setNewTodoPriority] = useState(3);
   const [newTodoDeadline, setNewTodoDeadline] = useState<Date | null>(null);
+  
+  const [newTodoIcon, setNewTodoIcon] =
+    useState<TodoIconName>(defaultTodoIcon);
   const [isNameTouched, setIsNameTouched] = useState(false);
 
-  const uncompletedCount = todos.filter((todo) => !todo.isDone).length;
-  const completedCount = todos.length - uncompletedCount;
+  // タスクの数を計算する
+  const uncompletedCount = todos.filter(
+    (todo) => !todo.isDone && todo.deadline !== null && dayjs(todo.deadline).isSame(dayjs(), "day")
+  ).length;
+  const completedCount = todos.filter((todo) => todo.isDone).length;
+
   const newTodoNameError = getTodoNameError(newTodoName);
   const isNewTodoNameInvalid = newTodoNameError !== "";
   const showNewTodoNameError = isNameTouched && isNewTodoNameInvalid;
@@ -65,6 +85,13 @@ const App = () => {
 
   const updateNewTodoPriority = (e: ChangeEvent<HTMLInputElement>) => {
     setNewTodoPriority(Number(e.target.value));
+  };
+
+  const updateNewTodoIcon = (e: ChangeEvent<HTMLInputElement>) => {
+    const iconName = e.target.value;
+    if (isTodoIconName(iconName)) {
+      setNewTodoIcon(iconName);
+    }
   };
 
   const updateDeadline = (e: ChangeEvent<HTMLInputElement>) => {
@@ -84,11 +111,13 @@ const App = () => {
       isDone: false,
       priority: newTodoPriority,
       deadline: newTodoDeadline,
+      icon: newTodoIcon,
     };
     setTodos((currentTodos) => [...currentTodos, newTodo]);
     setNewTodoName("");
     setNewTodoPriority(3);
     setNewTodoDeadline(null);
+    setNewTodoIcon(defaultTodoIcon);
     setIsNameTouched(false);
   };
 
@@ -114,14 +143,20 @@ const App = () => {
 
   return (
     <div className="mx-4 mt-10 max-w-2xl md:mx-auto">
-      <h1 className="mb-4 text-2xl font-bold">TodoApp</h1>
+      <h1 className="mb-4 text-2xl font-bold">CalendarTodo</h1>
       <div className="mb-4">
         <WelcomeMessage
-          name="寝屋川タヌキ"
           uncompletedCount={uncompletedCount}
         />
       </div>
-      <TodoList todos={todos} updateIsDone={updateIsDone} remove={remove} />
+      <CalendarView 
+        todos={todos}
+        updateIsDone={updateIsDone}
+        remove={remove}
+      />
+
+      {/* 期限なしの物だけ表示 */}
+      <TodoList todos={todos.filter((todo) => !todo.deadline)} updateIsDone={updateIsDone} remove={remove} />
 
       <button
         type="button"
@@ -202,6 +237,42 @@ const App = () => {
                 <span>{value}</span>
               </label>
             ))}
+          </div>
+        </fieldset>
+
+        {/* ラジオボタンでアイコンを選択 */}
+        <fieldset>
+          <legend className="mb-1 font-bold">
+            アイコン
+          </legend>
+          <div className="flex gap-2">
+            {Object.keys(todoIconOptions).map((name) => {
+              if (!isTodoIconName(name)) {
+                return null;
+              }
+
+              const option = todoIconOptions[name];
+              return (
+                <label
+                  key={name}
+                  className="cursor-pointer rounded-md"
+                  title={option.label}
+                >
+                  <input
+                    type="radio"
+                    name="todoIcon"
+                    value={name}
+                    checked={newTodoIcon === name}
+                    onChange={updateNewTodoIcon}
+                    className="peer sr-only"
+                  />
+                  <span className="flex size-10 items-center justify-center rounded-md border border-slate-300 text-slate-600 peer-checked:border-indigo-500 peer-checked:bg-indigo-50 peer-checked:text-indigo-600 peer-focus-visible:outline-2 peer-focus-visible:outline-indigo-500">
+                    <FontAwesomeIcon icon={option.icon} aria-hidden="true" />
+                  </span>
+                  <span className="sr-only">{option.label}</span>
+                </label>
+              );
+            })}
           </div>
         </fieldset>
 
