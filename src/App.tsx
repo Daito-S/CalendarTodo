@@ -4,6 +4,7 @@ import type { Todo } from "./types";
 import { initTodos } from "./initTodos";
 import WelcomeMessage from "./WelcomeMessage";
 import TodoList from "./TodoList";
+import CalendarView from "./Calendar";
 import { v4 as uuid } from "uuid";
 import { twMerge } from "tailwind-merge";
 import dayjs from "dayjs";
@@ -48,7 +49,8 @@ const App = () => {
   const [newTodoDeadline, setNewTodoDeadline] = useState<Date | null>(null);
   const [isNameTouched, setIsNameTouched] = useState(false);
 
-  const uncompletedCount = todos.filter((todo) => !todo.isDone).length;
+  // 今日の未完了タスクの数を計算する
+  const uncompletedCount = todos.filter((todo) => !todo.isDone && todo.deadline === new Date()).length;
   const completedCount = todos.length - uncompletedCount;
   const newTodoNameError = getTodoNameError(newTodoName);
   const isNewTodoNameInvalid = newTodoNameError !== "";
@@ -117,11 +119,17 @@ const App = () => {
       <h1 className="mb-4 text-2xl font-bold">TodoApp</h1>
       <div className="mb-4">
         <WelcomeMessage
-          name="寝屋川タヌキ"
           uncompletedCount={uncompletedCount}
         />
       </div>
-      <TodoList todos={todos} updateIsDone={updateIsDone} remove={remove} />
+      <CalendarView 
+        todos={todos}
+        updateIsDone={updateIsDone}
+        remove={remove}
+      />
+
+      {/* 期限なしの物だけ表示 */}
+      <TodoList todos={todos.filter((todo) => !todo.deadline)} updateIsDone={updateIsDone} remove={remove} />
 
       <button
         type="button"
