@@ -12,7 +12,7 @@ const TodoList = (props: Props) => {
 
   if (todos.length === 0) {
     return (
-      <div className="text-red-500">
+      <div className="mt-1 text-sm text-slate-500">
         期限が指定されていないタスクはありません。
       </div>
     );

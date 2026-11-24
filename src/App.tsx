@@ -155,21 +155,31 @@ const App = () => {
         remove={remove}
       />
 
-      {/* 期限なしの物だけ表示 */}
-      <TodoList todos={todos.filter((todo) => !todo.deadline)} updateIsDone={updateIsDone} remove={remove} />
-
-      <button
-        type="button"
-        onClick={removeCompletedTodos}
-        disabled={completedCount === 0}
-        className={twMerge(
-          "mt-4 cursor-pointer rounded-md px-3 py-1 font-medium",
-          "bg-rose-500 text-white hover:bg-rose-600",
-          "disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-rose-500",
-        )}
+      <section
+        aria-labelledby="calendarHeading"
+        className="mb-4 rounded-md border border-slate-300 bg-white p-3 drop-shadow"
       >
-        完了済みのタスクを削除
-      </button>
+        <h2 id="newTodoHeading" className="text-lg font-bold">
+            期限のないタスク
+        </h2>
+        {/* 期限なしの物だけ表示 */}
+        <TodoList todos={todos.filter((todo) => !todo.deadline)} updateIsDone={updateIsDone} remove={remove} />
+      </section>
+
+      <div className="mt-4 flex justify-center">
+        <button
+          type="button"
+          onClick={removeCompletedTodos}
+          disabled={completedCount === 0}
+          className={twMerge(
+            "mt-4 cursor-pointer rounded-md px-3 py-1 font-medium",
+            "bg-rose-500 text-white hover:bg-rose-600",
+            "disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-rose-500",
+          )}
+        >
+          完了済みのタスクを削除
+        </button>
+      </div>
 
       <form
         onSubmit={(e) => {
@@ -294,17 +304,19 @@ const App = () => {
           />
         </div>
 
-        <button
-          type="submit"
-          disabled={isNewTodoNameInvalid}
-          className={twMerge(
-            "cursor-pointer rounded-md px-3 py-1",
-            "bg-indigo-500 font-bold text-white hover:bg-indigo-600",
-            "disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-indigo-500",
-          )}
-        >
-          追加
-        </button>
+        <div className="mt-4 flex justify-center">
+          <button
+            type="submit"
+            disabled={isNewTodoNameInvalid}
+            className={twMerge(
+              "cursor-pointer rounded-md px-3 py-1",
+              "bg-indigo-500 font-bold text-white hover:bg-indigo-600",
+              "disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-indigo-500",
+            )}
+          >
+            追加
+          </button>
+        </div>
       </form>
     </div>
   );

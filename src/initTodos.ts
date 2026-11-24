@@ -15,7 +15,7 @@ export const initTodos: Todo[] = [
     name: "明日のタスクも設定してみる",
     isDone: false,
     priority: 2,
-    deadline: null,
+    deadline: new Date(),
     icon: "book",
   },
   {
